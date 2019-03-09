@@ -20,14 +20,21 @@ var srcObj = {
     blueKey: "o_blueKey.png",
 	blueKey1: "o_blueKey1.png",
     enemy0:"o_enemy0.png",
+    enemy_night: "o_enemyAA_night.png",  // 敌人晚上皮肤
     enemy: "o_enemyAA.png",
-    enemy1:"o_enemy1AA.png",
+    enemy1:"enemy1AA.png",
+    enemy1_night:"enemy1AA_night.png",
     hurt:"o_hurt.png",
+    protectZhao_night:"protect_night.png",
+    protectZhao:"protect.png",
     star:"o_star.png",
+    star_night:"o_star_night.png",
 	pl:"o_player10.png",
+	enemy10_night:"o_enemyDie_night.png",
 	enemy10:"o_enemyDie.png",
 	life:"o_life.png",
-	destination:"o_destinationAA.png"
+	destination:"o_destinationAA.png",
+	night:"night.png"
   
   
  };
@@ -69,21 +76,27 @@ canvasMap.style.zIndex=-10
 //  left:0px;
 //  top:0px;
 //  z-index:-1;
+var stillTurnRight = false
+var stillTurnLeft = false
+var isNight = false // 是否是晚上
+
 
 var contextTest = canvasTest.getContext("2d");
 var scaleNum=canvasTest.width/320 //计算出缩放比例
 contextTest.scale(scaleNum,scaleNum) // 设置canvas的缩放比例  原始比例 支持 320px * 240px
 var mouseX=0;
 var mouseY=0;
+// var mouseXHistory=0;
 canvasTest.onmousemove = function (e) {
-	console.log(e.pageX+"-"+e.pageY)
-	console.log(e.clientX+"-"+e.clientY)
-	console.log('canvans   left边距：'+canvasTest.getBoundingClientRect().left)
-	console.log('canvans   top边距：'+canvasTest.getBoundingClientRect().top)
-	console.log('cnavans width:'+canvasTest.width)
-	console.log('cnavans height:'+canvasTest.height)
-	console.log('handx:'+playerHand.x)
-	console.log('handy:'+playerHand.y)
+//	console.log('cnGameJs mouse xy:'+cnGame.input.mouseX+'-'+cnGame.input.mouseY)
+//	console.log('docunment mouse xy:'+e.pageX+"-"+e.pageY)
+//	console.log(e.clientX+"-"+e.clientY)
+//	console.log('canvans   left边距：'+canvasTest.getBoundingClientRect().left)
+//	console.log('canvans   top边距：'+canvasTest.getBoundingClientRect().top)
+//	console.log('cnavans width:'+canvasTest.width)
+//	console.log('cnavans height:'+canvasTest.height)
+//	console.log('handx:'+playerHand.x)
+//	console.log('handy:'+playerHand.y)
 	//设置准星
 	var starImg = cnGame.loader.loadedImgs[srcObj.star];
 //	contextTest.drawImage(starImg, mouseX-canvasTest.getBoundingClientRect().left-starImg.width/2, 
@@ -93,7 +106,7 @@ canvasTest.onmousemove = function (e) {
 	mouseY=e.clientY
 	//设置手臂位置
 	var shoubiImg = cnGame.loader.loadedImgs[srcObj.pl];
-	console.log('shoubi width  heght:'+shoubiImg.width+'-'+shoubiImg.height)
+//	console.log('shoubi width  heght:'+shoubiImg.width+'-'+shoubiImg.height)
 	playerHand.x=((mouseX-canvasTest.getBoundingClientRect().left)/scaleNum)
 	-(canvasTest.width/3.7)*2/scaleNum
 	playerHand.y=((mouseY-canvasTest.getBoundingClientRect().top)/scaleNum)
@@ -102,24 +115,28 @@ canvasTest.onmousemove = function (e) {
 //	-(canvasTest.getBoundingClientRect().left*3)
 //	playerHand.y=((mouseY-canvasTest.getBoundingClientRect().top)/3)
 //	-(canvasTest.getBoundingClientRect().top*3)
-	console.log('hand canvans 坐标：'+playerHand.x+'-'+playerHand.y)
-	
-	console.log('hand:'+playerHand.x+'-'+playerHand.y)
+//	console.log('hand canvans 坐标：'+playerHand.x+'-'+playerHand.y)
+//	
+//	console.log('hand:'+playerHand.x+'-'+playerHand.y)
 	// 处理玩家转向
 	var zhunxingX=(mouseX-canvasTest.getBoundingClientRect().left)/scaleNum-(starImg.width/2)
 	var zhunxingXMax=0
 	var zhunxingXMin=0
 	zhunxingXMax=zhunxingX>=zhunxingXMax?zhunxingX:zhunxingXMax
 	zhunxingXMin=zhunxingX<=zhunxingXMin?zhunxingX:zhunxingXMin
-	console.log('zhunxing max  min:'+zhunxingXMax+'-'+zhunxingXMin)
-	console.log('canvas max x:'+canvasTest.width)
-	console.log('canvas scaleNum:'+scaleNum)
-	console.log('starImg.width/2:'+(starImg.width/2))
-	if(zhunxingX>=( ( (canvasTest.width-(starImg.width*scaleNum))/scaleNum )*6/7 ) ){// 152  to right  
-		playerTemp.angle -= 0.5;
-		
-	}else if(zhunxingX<=( ( (canvasTest.width-(starImg.width*scaleNum))/scaleNum ))*1/7 ){// -167 to left
-		playerTemp.angle += 0.5;
+//	console.log('zhunxing max  min:'+zhunxingXMax+'-'+zhunxingXMin)
+//	console.log('canvas max x:'+canvasTest.width)
+//	console.log('canvas scaleNum:'+scaleNum)
+//	console.log('starImg.width/2:'+(starImg.width/2))
+	// mouseXHistory = mouseXHistory == 0?mouseX:mouseXHistory
+	if(zhunxingX>=( ( (canvasTest.width-(starImg.width*scaleNum))/scaleNum )*69/70 ) ){// 152  to right  
+//		playerTemp.angle -= 0.5;
+		stillTurnLeft = false
+		stillTurnRight = true
+	}else if(zhunxingX<=( ( (canvasTest.width-(starImg.width*scaleNum))/scaleNum ))*1/70 ){// -167 to left
+//		playerTemp.angle += 0.5;
+		stillTurnRight = false
+		stillTurnLeft = true
 	}else{
 		
 	}
@@ -142,12 +159,18 @@ var player = function(options) {
     this.init(options);
     this.FOV = options.FOV || 80; //玩家的视野角度
     this.bodyHeight = 20; //玩家视觉高度
-    this.moveSpeed = 0.5;
+    this.moveSpeed = 1;
     this.life = 10;
+    this.protect = 100;
     this.centerX = this.x + this.width / 2;
     this.centerY = this.y + this.height / 2;
-    this.hurtLastTime = 0;
+    this.hurtLastTime = 0; //上次受伤时间：
     this.hurtDuration = 2; //受伤持续时间:秒
+    this.attackDuration = 2; //受攻击持续时间:秒
+    this.attackedLastTime = 0; //上次被攻击的时间
+    this.lifeRecoverDuration = 30; //30秒内不受伤 生命值就开始恢复
+    this.protectZhaoRecoverDuration = 15; //30秒内不被攻击 防护罩会重新恢复 恢复到初始值
+    this.lastLifeRecoverTime = 0; //上一次恢复生命值的时间
    
 
 }
@@ -168,7 +191,12 @@ player.prototype.shoot = function(starPos) {
             var starImg = cnGame.loader.loadedImgs[srcObj.star];
             if (cnGame.collision.col_Point_Rect((mouseX-canvasTest.getBoundingClientRect().left)/scaleNum-(starImg.width/2)
             , (mouseY-canvasTest.getBoundingClientRect().top)/scaleNum-(starImg.height/2), enemyRect)) {
-				obj.setCurrentAnimation("enemyDie");	
+            		if(isNight){
+            			obj.setCurrentAnimation("enemyDie_night");	
+            		}else{
+            			obj.setCurrentAnimation("enemyDie");	
+            		}
+				
                 break;
             }
         }
@@ -177,15 +205,33 @@ player.prototype.shoot = function(starPos) {
 }
 /*	player受伤	*/
 player.prototype.hurt = function() {
-    this.isHurt = true;
-	this.life = Math.max(0, this.life - 1);
-    this.hurtLastTime = (new Date()).getTime();
+    this.isAttacked = true;
+    if(this.protect == 0){ // 如果能量保护罩消失  才开始减生命值
+    		this.isHurt = true;
+    		layer.msg('防护罩已失效')
+    		this.life = Math.max(0, this.life - 1);
+    		var now = (new Date()).getTime();
+    		this.hurtLastTime = now // 如果生命值减少 记录上一次受伤时间
+    		this.attackedLastTime = now //  同时也要记录上一次被攻击时间
+    }else{
+    		layer.msg('防护罩已启动')
+    		this.protect = Math.max(0, this.protect - 1);
+    		this.attackedLastTime = (new Date()).getTime(); // 如果防护罩还在只记录 上一次被攻击的时间
+    }
+    
+    
 
 }
 /*	player恢复	*/
 player.prototype.recover = function() {
     this.isHurt = false;
-
+}
+/*	player恢复	*/
+player.prototype.recoverProtectZhao = function() {
+    this.isAttacked = false;
+    console.log('zhao zi  recover')
+    layer.msg('防护罩已恢复');
+    this.protect = 100;
 }
 /*	屏幕上的player	*/
 var player2=function(options){
@@ -207,11 +253,11 @@ var enemy = function(options) {
 cnGame.core.inherit(enemy, cnGame.Sprite);
 /*	敌人射击方法	*/
 enemy.prototype.shoot = function(player) {
-    var randomNum = Math.floor(Math.random() * 2); //获取随机数
-    if (!randomNum) {//如果随机数是0（1/2机会），则击中玩家
-        player.hurt();
-
-    }
+//  var randomNum = Math.floor(Math.random() * 2); //获取随机数
+//  if (!randomNum) {//如果随机数是0（1/2机会），则击中玩家
+//      player.hurt();
+//  }
+	player.hurt();
 
 }
 /*	敌人更新的同时更新屏幕上的敌人对象	*/
@@ -474,6 +520,13 @@ var changeEnemyAngle = function(duration) {
 
     for (var i = 0, len = spriteList.length; i < len; i++) {
         if (spriteList[i] instanceof enemy) {
+        		// 判断如果是晚上  改用夜晚皮肤
+        		if(isNight){
+//      			console.log('启用敌人夜晚站立皮肤')
+        			spriteList[i].relatedObj.src = srcObj.enemy_night
+        		}
+        		
+        		
             distant = 0;
             var enemyCenter = getCenterXY(spriteList[i]);
             var distantX = playerCenter[0] - enemyCenter[0];
@@ -496,17 +549,26 @@ var changeEnemyAngle = function(duration) {
                 distant += 1;
                 x = nextX;
                 y = nextY;
-                if (cnGame.collision.col_Point_Rect(x, y, playerRect)&&!spriteList[i].relatedObj.isCurrentAnimation("enemyDie")) {//如果地图上敌人能看到玩家，则向玩家射击
+                if (cnGame.collision.col_Point_Rect(x, y, playerRect)&&!spriteList[i].relatedObj.isCurrentAnimation("enemyDie")&&!isNight || 
+                cnGame.collision.col_Point_Rect(x, y, playerRect)&&!spriteList[i].relatedObj.isCurrentAnimation("enemyDie_night")&&isNight) {//如果地图上敌人能看到玩家，则向玩家射击
                     spriteList[i].isShooting = true;
                     if (spriteList[i].lastShootTime > spriteList[i].shootDuration) {//检查是否超过射击时间间隔，超过则射击玩家            
                         spriteList[i].shoot(player);
-                        spriteList[i].relatedObj.setCurrentImage(srcObj.enemy1);		
+                        if(isNight){
+                        		spriteList[i].relatedObj.setCurrentImage(srcObj.enemy1_night);	
+                        } else {
+                        		spriteList[i].relatedObj.setCurrentImage(srcObj.enemy1);		
+                        }
                         spriteList[i].lastShootTime = 0;
 
                     }
                     else {
                         if (spriteList[i].lastShootTime > 0.1) {
-                            spriteList[i].relatedObj.setCurrentImage(srcObj.enemy);
+                            if(isNight){
+                        			spriteList[i].relatedObj.setCurrentImage(srcObj.enemy1_night);	
+	                        } else {
+	                        		spriteList[i].relatedObj.setCurrentImage(srcObj.enemy1);		
+	                        }				
                         }
                         spriteList[i].lastShootTime += duration;
                     }
@@ -552,10 +614,19 @@ var drawKeys=function(){
 }
 /*	添加敌人	*/
 var addEnemy=function(enemyX,enemyY,shootDuration,screenContext){
-	    var newEnemy = new enemy({ src: srcObj.enemy0, width: 10, height: 10, angle: 0, x: enemyX, y: enemyY, screenImg: cnGame.loader.loadedImgs[srcObj.enemy], shootDuration: shootDuration });
-		newEnemy.relatedObj=new enemy2({src:srcObj.enemy,context:screenContext});
+	    var newEnemy ;
+		
+		if(isNight){
+			newEnemy = new enemy({ src: srcObj.enemy0, width: 10, height: 10, angle: 0, x: enemyX, y: enemyY, screenImg: cnGame.loader.loadedImgs[srcObj.enemy_night], shootDuration: shootDuration });
+			newEnemy.relatedObj=new enemy2({src:srcObj.enemy_night,context:screenContext});
+		}else{
+			newEnemy = new enemy({ src: srcObj.enemy0, width: 10, height: 10, angle: 0, x: enemyX, y: enemyY, screenImg: cnGame.loader.loadedImgs[srcObj.enemy], shootDuration: shootDuration });
+			newEnemy.relatedObj=new enemy2({src:srcObj.enemy,context:screenContext});
+		}
 		newEnemy.relatedObj.relatedParent=newEnemy;
 		newEnemy.relatedObj.addAnimation(new cnGame.SpriteSheet("enemyDie",srcObj.enemy10,{frameDuration:100,width:1140,height:550,frameSize:[190,550],context:screenContext,onFinish:function(){cnGame.spriteList.remove(this.relatedSprite.relatedParent);}}));
+        newEnemy.relatedObj.addAnimation(new cnGame.SpriteSheet("enemyDie_night",srcObj.enemy10_night,{frameDuration:100,width:1140,height:550,frameSize:[190,550],context:screenContext,onFinish:function(){cnGame.spriteList.remove(this.relatedSprite.relatedParent);}}));
+        
         cnGame.spriteList.add(newEnemy);
 	
 }
@@ -564,10 +635,12 @@ var playerHand=null;
 /*	游戏对象	*/
 var gameObj = {
     screenSize: [320, 240], //视觉屏幕尺寸
-    viewColWidth: 1, //每条绘制线条的宽
-    wallSize: [20, 20, 20], //墙的尺寸
+    viewColWidth: 0.5, //每条绘制线条的宽
+    wallSize: [20, 20, 30], //墙的尺寸
     keysValue: [], //钥匙的值 3：红 4：绿 5：蓝
     doorsArr: [],//门数组
+    gameStartTime:(new Date()).getTime(),//游戏开始的时间
+    dayDuration:60, //一天的周期  ：秒
     initialize: function() {
 
         cnGame.input.preventDefault(["tab","left", "up", "down", "right", "shift", "space","w","s","a","d"]);
@@ -632,7 +705,7 @@ var gameObj = {
 		this.keyText=cnGame.shape.Text("获得钥匙：",{x:180,y:14,style:"#000",font:"10px sans-serif",context:this.screenContext});
     },
     update: function(duration) {
-		if(this.player.life==0){
+		if(this.player.life<=0){
 			cnGame.loop.end();
 			alert("you lost!");	
 			return;
@@ -642,12 +715,22 @@ var gameObj = {
 			alert("you win!");	
 			return;		
 		}
+		if(stillTurnRight){
+			playerTemp.angle -= 1;
+			setTimeout("stillTurnRight = false",1000)
+			//stillTurnRight = false
+		}
+		if(stillTurnLeft){
+			playerTemp.angle += 1;
+			setTimeout("stillTurnLeft = false",1000)
+			//stillTurnLeft = false
+		}
         var now = (new Date()).getTime();
         var input = cnGame.input;
         if (input.isPressed("left")||input.isPressed("a")) {//向左转
 //          this.player.angle += 5;
-			var nextX = this.player.x - Math.sin(this.player.angle * Math.PI / 180) * this.player.moveSpeed;
-			var nextY = this.player.y - Math.cos(this.player.angle * Math.PI / 180) * this.player.moveSpeed
+			var nextX = this.player.x - Math.sin(this.player.angle * Math.PI / 180) * this.player.moveSpeed/2;
+			var nextY = this.player.y - Math.cos(this.player.angle * Math.PI / 180) * this.player.moveSpeed/2;
             if (!isOnWall(nextX, nextY, this.player.width, this.player.height, this.map)) {
                 this.player.x = nextX;
                 this.player.y = nextY;
@@ -686,7 +769,7 @@ var gameObj = {
             }
         }
         var door;
-        if (input.isPressed("shift")) {//开门
+        if (input.isPressed("e")) {//开门
             door = BeforeDoor.call(this);
             if (door) {
                 for (var i = 0, len = this.keysValue.length; i < len; i++) {
@@ -699,13 +782,11 @@ var gameObj = {
         }
         
         if (input.isPressed("tab")) {//显示小地图
-        		console.log('map zindex:'+canvasMap.style.zIndex)
+//      		console.log('map zindex:'+canvasMap.style.zIndex)
 			if(canvasMap.style.zIndex==-10){
-				console.log('111')
 				canvasMap.style.zIndex=1000
 			}
 			else if(canvasMap.style.zIndex==1000){
-				console.log('222')
 				canvasMap.style.zIndex=-10
 			}
         }
@@ -725,9 +806,35 @@ var gameObj = {
         changeEnemyAngle.call(this, duration);
         updateColLine.call(this);
         checkGetKeys.call(this);
-
-        if (this.player.isHurt && (now - this.player.hurtLastTime) / 1000 > this.player.hurtDuration) {//player受伤状态的恢复
+		
+		// 判断是否还处于受伤状态
+        if (this.player.isHurt && (now - this.player.hurtLastTime) / 1000 > this.player.hurtDuration ) {//player受伤状态的恢复
+//          console.log('1231')
             this.player.recover();
+        }
+        // 判断是否需要恢复生命值
+        if( (now - this.player.hurtLastTime) / 1000 > this.player.lifeRecoverDuration ){
+//          	console.log('aaaaa')
+            		var lastLifeRecoverTime = this.player.lastLifeRecoverTime == 0?this.player.hurtLastTime : this.player.lastLifeRecoverTime
+            		var num1 = (now - lastLifeRecoverTime) / 1000
+            		var num2 = parseInt(num1 / this.player.lifeRecoverDuration)
+            			if(num2 > 0){
+            				this.player.life += num2
+            				this.player.life = this.player.life >= 10 ? 10 : this.player.life
+            				console.log('sheng ming zhi +'+num2)
+            				console.log('当前生命值：'+this.player.life)
+            				this.player.lastLifeRecoverTime = now
+            			}
+            }
+        // 判定是否还在被攻击
+        if(this.player.isAttacked && (now - this.player.attackedLastTime) / 1000 > this.player.attackDuration ){
+			this.player.isAttacked = false
+        }
+        
+        // 判断防护罩是否需要恢复
+        if((this.player.attackedLastTime != 0 )&& (now - this.player.attackedLastTime) / 1000 > this.player.protectZhaoRecoverDuration ){
+        		this.player.recoverProtectZhao()
+        		this.player.attackedLastTime = now
         }
 
         colImgsArray.sort(function(obj1, obj2) {
@@ -744,12 +851,22 @@ var gameObj = {
         });
     },
     draw: function(duration) {
+    		
+    		var timeGameLast = ((new Date()).getTime() - this.gameStartTime) / 1000 // 游戏已经持续了多久：秒
+//  		console.log('timeGameLast:'+timeGameLast)
+    		if( parseInt(timeGameLast / this.dayDuration) % 2 == 0){
+//  			console.log('parseInt(timeGameLast / this.dayDuration) % 2='+(parseInt(timeGameLast / this.dayDuration) % 2))
+    			isNight = true
+    		}else{
+    			isNight = false
+    		}
 		//画出地图
         this.map.draw({ "0": { src: srcObj.ground }, "1": { src: srcObj.wall1 }, "2": { src: srcObj.wall2 }, "3": { src: srcObj.redDoor }, "4": { src: srcObj.greenDoor }, "5": { src: srcObj.blueDoor},"9":{ src: srcObj.destination}});
 		//画出天和地
         var context = this.screenContext;
         context.clearRect(0, 0, this.screenSize[0], this.screenSize[1]);
-        context.fillStyle = "rgb(203,242,238)";
+//      context.fillStyle = "rgb(203,242,238)";
+		context.fillStyle = isNight?"rgb(0,0,0)":"rgb(203,242,238)"
         context.fillRect(0, 0, this.screenSize[0], this.screenSize[1] / 2);
         context.fillStyle = "rgb(77,88,87)";
         context.fillRect(0, this.screenSize[1] / 2, this.screenSize[0], this.screenSize[1] / 2);
@@ -764,16 +881,37 @@ var gameObj = {
 			}
         }	
 		//画出准星
-        var starImg = cnGame.loader.loadedImgs[srcObj.star];
-//      context.drawImage(starImg, this.screenSize[0] / 2 - starImg.width, this.screenSize[1] / 2 - starImg.height, starImg.width, starImg.height); 
+		var starImg;
+		if(isNight){
+				starImg = cnGame.loader.loadedImgs[srcObj.star_night];
+			}else{
+				starImg = cnGame.loader.loadedImgs[srcObj.star];
+			}
+        
 		context.drawImage(starImg, (mouseX-canvasTest.getBoundingClientRect().left)/scaleNum-(starImg.width/2), 
 		(mouseY-canvasTest.getBoundingClientRect().top)/scaleNum-(starImg.height/2), starImg.width, starImg.height);
-		console.log('准星canvas坐标：'+((mouseX-canvasTest.getBoundingClientRect().left)/scaleNum-(starImg.width/2))+
-		'-'+((mouseY-canvasTest.getBoundingClientRect().top)/scaleNum-(starImg.height/2)))
-		//受伤的时候画出红屏
-        if (this.player.isHurt) {
+		//被攻击时的时候画出红屏 或者防护罩
+        if (this.player.isHurt && this.player.protect == 0) {
             context.drawImage(cnGame.loader.loadedImgs[srcObj.hurt], 0, 0, this.screenSize[0], this.screenSize[1]);
+        }else if(this.player.isAttacked && this.player.protect > 0){
+//      		console.log(' show zhao zi')
+			if(isNight){
+				console.log('open the night protect device')
+				context.drawImage(cnGame.loader.loadedImgs[srcObj.protectZhao_night], 0, 0, this.screenSize[0], this.screenSize[1]);
+			}else{
+				console.log('open the day protect device')
+				context.drawImage(cnGame.loader.loadedImgs[srcObj.protectZhao], 0, 0, this.screenSize[0], this.screenSize[1]);
+			}
+        }else{
+        	
         }
+        // 模拟黑夜场景
+        if(isNight){
+        	        context.drawImage(cnGame.loader.loadedImgs[srcObj.night], 0, 0, this.screenSize[0], this.screenSize[1]);
+        }else{
+        	
+        }
+        
 		//画出血条信息
 		drawLife.call(this);
 		//画出钥匙信息
